@@ -38,6 +38,7 @@ ActiveRecord::Schema.define(version: 2018_06_07_114248) do
     t.datetime "birthday"
     t.datetime "adoption_date"
     t.text "description"
+    t.integer "owner_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

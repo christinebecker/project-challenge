@@ -32,6 +32,8 @@
       </div>
       <div class="footer"></div>
     </div>
-
+    <% if @dogs %>
+      <%= will_paginate @dogs %>
+    <% end %>
   </body>
 </html>

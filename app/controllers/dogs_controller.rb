@@ -1,10 +1,12 @@
 class DogsController < ApplicationController
+  include UsersHelper
+
   before_action :set_dog, only: [:show, :edit, :update, :destroy]
 
   # GET /dogs
   # GET /dogs.json
   def index
-    @dogs = Dog.all
+    @dogs = Dog.all.paginate(page: params[:page], per_page: 5)
   end
 
   # GET /dogs/1
@@ -25,6 +27,7 @@ class DogsController < ApplicationController
   # POST /dogs.json
   def create
     @dog = Dog.new(dog_params)
+    @dog.owner_id = current_user.id if current_user
 
     respond_to do |format|
       if @dog.save
@@ -43,7 +46,10 @@ class DogsController < ApplicationController
   # PATCH/PUT /dogs/1.json
   def update
     respond_to do |format|
-      if @dog.update(dog_params)
+      if current_user.id != @dog.owner_id
+        format.html { redirect_to @dog, notice: 'This is not your dog! You can only update your dog.' }
+        format.json { render json: @dog.errors, status: 'Prohibited attempt to update dog'}
+      elsif @dog.update(dog_params)
         @dog.images.attach(params[:dog][:image]) if params[:dog][:image].present?
 
         format.html { redirect_to @dog, notice: 'Dog was successfully updated.' }
@@ -73,6 +79,6 @@ class DogsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def dog_params
-      params.require(:dog).permit(:name, :description, :images)
+      params.require(:dog).permit(:name, :description, :images, :owner_id)
     end
 end
